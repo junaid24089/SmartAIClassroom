@@ -1,0 +1,11 @@
+{
+  "name": "BBSUL University of Tech - Registrar Ledger \u0026 Smart AI Classroom",
+  "description": "Smart AI Classroom \u0026 University Registrar Ledger Web Application with real-time attendance telemetry, syllabus tracking, live camera simulation, academic analytics, and faculty directories.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

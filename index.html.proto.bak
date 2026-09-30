@@ -1,0 +1,2905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>University of Tech - Registrar Ledger & Smart AI Classroom</title>
+  <meta name="description" content="Smart AI Classroom & University Registrar Ledger Web Application with real-time attendance telemetry, syllabus tracking, live camera simulation, academic analytics, and faculty directories." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ==========================================================================
+       LEDGER THEME & CSS VARIABLES
+       ========================================================================== */
+    :root {
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-serif: 'Newsreader', Georgia, Cambria, 'Times New Roman', serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      
+      --bg-body: #ffffff;
+      --bg-sidebar: #0f261e;
+      --bg-sidebar-hover: #18362b;
+      --bg-sidebar-active: #23503d;
+      --bg-card: #ffffff;
+      --bg-subtle: #f8faf7;
+      --bg-accent-subtle: #edf4eb;
+      
+      --border-subtle: #dee3dc;
+      --border-light: #e8ece5;
+      --border-sidebar: #18362b;
+      
+      --text-main: #11231a;
+      --text-muted: #5b6e62;
+      --text-faint: #74877b;
+      --text-sidebar: #a3beb0;
+      
+      --accent-green: #24542f;
+      --accent-navy: #214b6f;
+      --accent-gold: #c08226;
+      --accent-rose: #b03d2b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    .font-serif { font-family: var(--font-serif); }
+    .font-mono { font-family: var(--font-mono); }
+    .font-sans { font-family: var(--font-sans); }
+
+    /* Layout Shell */
+    #app-container {
+      display: flex;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    /* Fixed Left Sidebar */
+    #app-sidebar {
+      width: 250px;
+      background-color: var(--bg-sidebar);
+      color: #ffffff;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-right: 1px solid var(--border-sidebar);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      z-index: 50;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header {
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--border-sidebar);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+    }
+
+    .brand-logo-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      border: 1px solid #264e3c;
+      background: #143328;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #a3c9b7;
+    }
+
+    .brand-text h1 {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: #8ea89b;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .brand-text p {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.95);
+      margin-top: -2px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .nav-section-title {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      letter-spacing: 0.1em;
+      color: #6e8c7c;
+      text-transform: uppercase;
+      font-weight: 600;
+      padding: 0 0.5rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .nav-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.45rem 0.65rem;
+      border-radius: 4px;
+      background: transparent;
+      border: none;
+      color: var(--text-sidebar);
+      font-size: 12.5px;
+      font-family: var(--font-sans);
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .nav-btn:hover {
+      background-color: var(--bg-sidebar-hover);
+      color: #ffffff;
+    }
+
+    .nav-btn.active {
+      background-color: #3f5745;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .nav-btn-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .nav-btn-left svg {
+      width: 15px;
+      height: 15px;
+      opacity: 0.85;
+    }
+
+    .nav-badge {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 0.1rem 0.4rem;
+      border-radius: 2px;
+      background: #18362b;
+      color: #9dbcb0;
+      border: 1px solid #264e3c;
+    }
+
+    .nav-badge.live-pulse {
+      background: rgba(225, 29, 72, 0.2);
+      color: #fda4af;
+      border-color: rgba(225, 29, 72, 0.4);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .sidebar-footer {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--border-sidebar);
+      background: #0c1f19;
+    }
+
+    .user-profile-widget {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #18362b;
+      border: 1px solid #2b5443;
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .user-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .user-name {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-role {
+      font-size: 9.5px;
+      color: #8fa99b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Main Content Area */
+    #main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      background-color: var(--bg-body);
+    }
+
+    /* Sticky Top Header */
+    #app-header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.6rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-breadcrumb-title h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      text-transform: capitalize;
+    }
+
+    .header-breadcrumb-title p {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      letter-spacing: 0.08em;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      margin-top: 1px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .search-trigger-box {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+      background: #fbfcf9;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      cursor: pointer;
+      width: 220px;
+    }
+
+    .search-trigger-box:hover {
+      border-color: #b4c3bc;
+    }
+
+    .kbd-tag {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      padding: 1px 4px;
+      border-radius: 2px;
+    }
+
+    .btn-persona-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #fbfcf9;
+      border: 1px solid var(--border-subtle);
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      font-size: 11.5px;
+      cursor: pointer;
+      color: var(--text-main);
+    }
+
+    /* Scrollable Stage */
+    #viewport-stage {
+      flex: 1;
+      padding: 1.25rem 1.75rem 3rem 1.75rem;
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .view-pane {
+      display: none;
+    }
+
+    .view-pane.active {
+      display: block;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Standard Ledger Cards */
+    .ledger-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 1.25rem;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+      margin-bottom: 1rem;
+    }
+
+    .card-header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 0.35rem;
+    }
+
+    .card-number-tag {
+      font-weight: 700;
+      color: #566b5e;
+      margin-right: 0.5rem;
+    }
+
+    .card-heading {
+      font-family: var(--font-serif);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.75rem;
+      margin-left: 1.4rem;
+    }
+
+    /* KPI Grid */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      divide-x: 1px solid var(--border-light);
+      padding-top: 0.5rem;
+    }
+
+    .kpi-cell {
+      padding: 0 0.85rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .kpi-cell:first-child { padding-left: 0; }
+    .kpi-cell:last-child { padding-right: 0; }
+
+    .kpi-value {
+      font-family: var(--font-mono);
+      font-size: 26px;
+      font-weight: 600;
+      line-height: 1;
+      color: var(--text-main);
+    }
+
+    .kpi-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-top: 0.4rem;
+      line-height: 1.2;
+    }
+
+    .kpi-sub {
+      font-size: 10px;
+      color: var(--text-faint);
+      margin-top: 0.2rem;
+    }
+
+    /* Grid Layouts */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1rem;
+    }
+
+    .grid-equal-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    /* Clean Ledger Tables */
+    .table-responsive {
+      overflow-x: auto;
+      width: 100%;
+    }
+
+    .ledger-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11.5px;
+      text-align: left;
+    }
+
+    .ledger-table thead tr {
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .ledger-table th {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      font-weight: 600;
+      padding: 0.5rem 0.75rem;
+    }
+
+    .ledger-table td {
+      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid #f0f3ee;
+      color: var(--text-main);
+    }
+
+    .ledger-table tbody tr:hover {
+      background-color: #f7f9f5;
+      cursor: pointer;
+    }
+
+    /* Badges & Status Pills */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 3px;
+      font-size: 10px;
+      font-family: var(--font-sans);
+      border: 1px solid var(--border-subtle);
+      background: #ffffff;
+      color: var(--text-muted);
+    }
+
+    .status-badge.live {
+      background: #edf4eb;
+      color: #24542f;
+      border-color: #bdd4bd;
+      font-weight: 600;
+    }
+
+    .status-badge.present {
+      background: #edf4eb;
+      color: #24542f;
+      border-color: #bdd4bd;
+    }
+
+    .status-badge.late {
+      background: #fef8ec;
+      color: #a06414;
+      border-color: #f1ddb9;
+    }
+
+    .status-badge.absent {
+      background: #fdedeb;
+      color: #b03d2b;
+      border-color: #f5c4bc;
+    }
+
+    /* Forms, Buttons, Filters */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      background: #fbfcf9;
+      padding: 0.6rem 0.8rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .ledger-input, .ledger-select {
+      font-family: var(--font-sans);
+      font-size: 11.5px;
+      padding: 0.35rem 0.6rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+      background: #ffffff;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .ledger-input:focus, .ledger-select:focus {
+      border-color: #24542f;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .btn-action.primary {
+      background: var(--bg-sidebar);
+      color: #ffffff;
+      border-color: var(--bg-sidebar);
+    }
+
+    .btn-action.primary:hover {
+      background: #183d2f;
+    }
+
+    .btn-action.secondary {
+      background: #ffffff;
+      border-color: var(--border-subtle);
+      color: var(--text-main);
+    }
+
+    .btn-action.secondary:hover {
+      background: #f7f9f5;
+    }
+
+    /* Progress Bars */
+    .progress-bar-container {
+      width: 100%;
+      height: 10px;
+      border-radius: 3px;
+      overflow: hidden;
+      display: flex;
+      background: #eef2eb;
+      margin: 0.75rem 0;
+    }
+
+    .progress-seg.present { background: #2e6244; }
+    .progress-seg.late { background: #c08226; }
+    .progress-seg.absent { background: #b03d2b; }
+    .progress-seg.navy { background: #214b6f; }
+
+    /* Modals */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(2px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #ffffff;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      max-width: 520px;
+      width: 100%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      overflow: hidden;
+      animation: modalSlide 0.2s ease-out;
+    }
+
+    @keyframes modalSlide {
+      from { transform: scale(0.96); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-body {
+      padding: 1.25rem;
+      max-height: 75vh;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 0.75rem 1.25rem;
+      border-top: 1px solid var(--border-light);
+      background: #fbfcf9;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 0.85rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+    }
+
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      padding: 0.45rem 0.65rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+    }
+
+    /* Live Classroom Simulator Stage */
+    .camera-frame {
+      position: relative;
+      width: 100%;
+      height: 340px;
+      background: #111e18;
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #799a8b;
+    }
+
+    .camera-box-overlay {
+      position: absolute;
+      border: 1.5px solid #38bdf8;
+      border-radius: 2px;
+      background: rgba(56, 189, 248, 0.08);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2px;
+      pointer-events: none;
+    }
+
+    .camera-tag {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      background: #0f261e;
+      color: #38bdf8;
+      padding: 1px 3px;
+      border-radius: 1px;
+      align-self: flex-start;
+    }
+
+    /* Toast Notification */
+    #toast-notification {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: #0f261e;
+      color: #ffffff;
+      border: 1px solid #24542f;
+      padding: 0.65rem 1rem;
+      border-radius: 6px;
+      font-size: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: none;
+      z-index: 200;
+      animation: toastIn 0.25s ease;
+    }
+
+    @keyframes toastIn {
+      from { transform: translateY(10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+      .kpi-row { grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+      .grid-2col, .grid-equal-2 { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      #app-sidebar {
+        position: fixed;
+        left: -260px;
+      }
+      #app-sidebar.mobile-open {
+        left: 0;
+      }
+      .kpi-row { grid-template-columns: repeat(2, 1fr); }
+      #viewport-stage { padding: 1rem; }
+    }
+
+    /* Print Styles */
+    @media print {
+      #app-sidebar, #app-header, .btn-action, .filter-bar, .no-print { display: none !important; }
+      #app-container, #main-content, #viewport-stage { width: 100% !important; margin: 0 !important; padding: 0 !important; }
+      .ledger-card { box-shadow: none !important; border: 1px solid #dee3dc !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app-container">
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside id="app-sidebar">
+      <div>
+        <div class="sidebar-header" id="brand-header-trigger">
+          <div class="brand-logo-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+              <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z" />
+              <circle cx="12" cy="12" r="2.5" />
+            </svg>
+          </div>
+          <div class="brand-text">
+            <h1>SMART AI CLASSROOM</h1>
+            <p>Registrar ledger</p>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <!-- Overview Section -->
+          <div>
+            <div class="nav-section-title">OVERVIEW</div>
+            <button class="nav-btn active" id="nav-btn-dashboard" data-view="dashboard">
+              <div class="nav-btn-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <span>Dashboard</span>
+              </div>
+            </button>
+            <button class="nav-btn" id="nav-btn-live" data-view="live">
+              <div class="nav-btn-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                <span>Live Classroom</span>
+              </div>
+              <span class="nav-badge live-pulse">LIVE</span>
+            </button>
+          </div>
+
+          <!-- Academic Records -->
+          <div>
+            <div class="nav-section-title">ACADEMIC RECORDS</div>
+            <button class="nav-btn" id="nav-btn-attendance" data-view="attendance">
+              <div class="nav-btn-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                <span>Attendance Register</span>
+              </div>
+            </button>
+            <button class="nav-btn" id="nav-btn-syllabus" data-view="syllabus">
+              <div class="nav-btn-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                <span>Syllabus Tracker</span>
+              </div>
+            </button>
+            <button class="nav-btn" id="nav-btn-lectures" data-view="lectures">
+              <div class="nav-btn-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>Lecture Logs</span>
+              </div>
+            </button>
+            <button class="nav-btn" id="nav-btn-reports" data-view="reports">
+              <div class="nav-btn-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <span>Lecture Reports</span>
+              </div>
+            </button>
+          </div>
+
+          <!-- Directory Section -->
+          <div>
+            <div class="nav-section-title">DIRECTORIES</div>
+            <button class="nav-btn" id="nav-btn-students" data-view="students">
+              <div class="nav-btn-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>Students Directory</span>
+              </div>
+            </button>
+            <button class="nav-btn" id="nav-btn-teachers" data-view="teachers">
+              <div class="nav-btn-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>Teachers Directory</span>
+              </div>
+            </button>
+            <button class="nav-btn" id="nav-btn-courses" data-view="courses">
+              <div class="nav-btn-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                <span>Courses & Subjects</span>
+              </div>
+            </button>
+          </div>
+        </nav>
+      </div>
+
+      <!-- Sidebar User Profile Footer -->
+      <div class="sidebar-footer">
+        <div class="user-profile-widget">
+          <div class="user-avatar" id="sidebar-user-avatar">SK</div>
+          <div class="user-meta">
+            <div class="user-name" id="sidebar-user-name">Sara Khan</div>
+            <div class="user-role" id="sidebar-user-role">Registrar & Academic Affairs</div>
+          </div>
+          <button class="btn-persona-pill" id="persona-toggle-btn" style="background:#143328; border-color:#264e3c; color:#a3c9b7; padding: 2px 6px; font-size:10px;">
+            Switch
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ==================== MAIN CONTENT AREA ==================== -->
+    <main id="main-content">
+      <!-- Sticky Top Header -->
+      <header id="app-header">
+        <div class="header-breadcrumb-title">
+          <h2 id="header-title-text">Dashboard</h2>
+          <p id="header-subtitle-text">REGISTRAR LEDGER / 2024–25</p>
+        </div>
+
+        <div class="header-actions">
+          <div class="search-trigger-box" id="global-search-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span>Search ledger...</span>
+            <span class="kbd-tag">⌘K</span>
+          </div>
+
+          <button class="btn-action secondary" onclick="generateRandomBatch()" title="Seed 30+ random records across all tables">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            <span>+ Seed Random Batch (All)</span>
+          </button>
+
+          <button class="btn-action primary" id="quick-action-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>New Record</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Scrollable Stage Viewports -->
+      <div id="viewport-stage">
+        <!-- 1. DASHBOARD VIEW -->
+        <section id="view-dashboard" class="view-pane active">
+          <!-- Quick Control Strip -->
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+            <div style="font-size:11px; font-family:var(--font-mono); color:var(--text-faint);">
+              TELEMETRY: <span style="color:var(--accent-green); font-weight:700;">LIVE SYNC ACTIVE</span> · REGISTRAR NODE #04
+            </div>
+            <div style="display:flex; gap:0.4rem;">
+              <button class="btn-action secondary" onclick="generateRandomLecture()" style="font-size:11px; padding:3px 8px;">+ Random Lecture</button>
+              <button class="btn-action secondary" onclick="generateRandomAttendance()" style="font-size:11px; padding:3px 8px;">+ Random Attendance</button>
+              <button class="btn-action secondary" onclick="exportTableToCSV('dashboard')" style="font-size:11px; padding:3px 8px;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Export Ledger CSV</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- KPI REGISTER (01) -->
+          <div class="ledger-card">
+            <div class="card-header-bar">
+              <div><span class="card-number-tag">01</span> CONNECTED KPI REGISTER</div>
+              <span class="font-mono text-faint">ACADEMIC 2024–25</span>
+            </div>
+            <div class="card-heading">Department snapshot</div>
+            
+            <div class="kpi-row">
+              <div class="kpi-cell" onclick="navigate('students')">
+                <div class="kpi-value" id="kpi-total-students">248</div>
+                <div class="kpi-title">Total Students</div>
+                <div class="kpi-sub">12 sections</div>
+              </div>
+              <div class="kpi-cell" onclick="navigate('teachers')">
+                <div class="kpi-value" id="kpi-total-teachers">18</div>
+                <div class="kpi-title">Total Teachers</div>
+                <div class="kpi-sub">7 departments</div>
+              </div>
+              <div class="kpi-cell" onclick="navigate('lectures')">
+                <div class="kpi-value" id="kpi-today-lectures">12</div>
+                <div class="kpi-title">Today's Lectures</div>
+                <div class="kpi-sub">4 in progress</div>
+              </div>
+              <div class="kpi-cell" onclick="navigate('attendance')">
+                <div class="kpi-value" id="kpi-avg-attendance">84%</div>
+                <div class="kpi-title">Avg. Attendance</div>
+                <div class="kpi-sub">248 enrolled</div>
+              </div>
+              <div class="kpi-cell" onclick="navigate('syllabus')">
+                <div class="kpi-value" id="kpi-avg-syllabus">76%</div>
+                <div class="kpi-title">Syllabus Coverage</div>
+                <div class="kpi-sub">25 topics tracked</div>
+              </div>
+              <div class="kpi-cell" onclick="navigate('live')">
+                <div class="kpi-value" id="kpi-active-rooms">04</div>
+                <div class="kpi-title">Active Classrooms</div>
+                <div class="kpi-sub">of 16 available</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TEACHING RECORDS & ROOM REGISTER (02 & 03) -->
+          <div class="grid-2col">
+            <!-- 02: Today's Lectures -->
+            <div class="ledger-card">
+              <div class="card-header-bar">
+                <div><span class="card-number-tag">02</span> TEACHING RECORDS</div>
+                <a href="javascript:void(0)" onclick="navigate('lectures')" style="color:var(--text-main); font-size:10.5px; text-decoration:none;">View all →</a>
+              </div>
+              <div class="card-heading">Today's lectures</div>
+
+              <div class="table-responsive">
+                <table class="ledger-table">
+                  <thead>
+                    <tr>
+                      <th>COURSE / TEACHER</th>
+                      <th>ROOM</th>
+                      <th>TIME</th>
+                      <th>ATTEND.</th>
+                      <th style="text-align:right;">STATUS</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboard-lectures-tbody">
+                    <!-- Populated dynamically via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- 03: Classroom Activity -->
+            <div class="ledger-card">
+              <div class="card-header-bar">
+                <div><span class="card-number-tag">03</span> ROOM REGISTER</div>
+                <span>LIVE FEED</span>
+              </div>
+              <div class="card-heading">Classroom activity</div>
+
+              <div style="display:flex; flex-direction:column; gap:0.65rem;" id="dashboard-rooms-list">
+                <!-- Room Status Items -->
+                <div style="padding:0.65rem; border:1px solid var(--border-light); border-radius:4px; background:#fbfcf9;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:700; font-size:12px;">Lab B-204</span>
+                    <span class="status-badge live">LIVE</span>
+                  </div>
+                  <div style="font-size:10.5px; color:var(--text-faint); margin-top:2px;">CS-301 · Dr. Malik</div>
+                  <div style="font-size:10.5px; color:var(--accent-green); font-family:var(--font-mono); margin-top:4px;">● 24 students detected</div>
+                </div>
+
+                <div style="padding:0.65rem; border:1px solid var(--border-light); border-radius:4px; background:#fbfcf9;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:700; font-size:12px;">Lab C-103</span>
+                    <span class="status-badge">CLOSED</span>
+                  </div>
+                  <div style="font-size:10.5px; color:var(--text-faint); margin-top:2px;">SE-214 · Ms. Hassan</div>
+                  <div style="font-size:10.5px; color:var(--text-faint); font-family:var(--font-mono); margin-top:4px;">● 29 students recorded</div>
+                </div>
+
+                <div style="padding:0.65rem; border:1px solid var(--border-light); border-radius:4px; background:#fbfcf9;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:700; font-size:12px;">Room A-110</span>
+                    <span class="status-badge" style="color:var(--accent-navy);">NEXT</span>
+                  </div>
+                  <div style="font-size:10.5px; color:var(--text-faint); margin-top:2px;">CS-205 · Prof. Javed</div>
+                  <div style="font-size:10.5px; color:var(--accent-navy); font-family:var(--font-mono); margin-top:4px;">● Opens in 45 min</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DAILY PRESENCE & SYLLABUS (04 & 05) -->
+          <div class="grid-equal-2">
+            <!-- 04: Daily Presence -->
+            <div class="ledger-card" onclick="navigate('attendance')" style="cursor:pointer;">
+              <div class="card-header-bar">
+                <div><span class="card-number-tag">04</span> DAILY PRESENCE</div>
+                <div class="font-mono" style="font-size:14px; font-weight:700;">84%</div>
+              </div>
+              <div class="card-heading">Attendance overview</div>
+              
+              <div class="progress-bar-container">
+                <div class="progress-seg present" style="width: 84%;"></div>
+                <div class="progress-seg late" style="width: 7%;"></div>
+                <div class="progress-seg absent" style="width: 9%;"></div>
+              </div>
+
+              <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:0.5rem; margin-top:0.5rem;">
+                <div>
+                  <div class="font-mono" style="font-size:18px; font-weight:600; color:var(--accent-green);" id="dash-present-count">208</div>
+                  <div class="font-mono" style="font-size:9px; color:var(--text-faint);">PRESENT</div>
+                </div>
+                <div>
+                  <div class="font-mono" style="font-size:18px; font-weight:600; color:var(--accent-gold);" id="dash-late-count">17</div>
+                  <div class="font-mono" style="font-size:9px; color:var(--text-faint);">LATE</div>
+                </div>
+                <div>
+                  <div class="font-mono" style="font-size:18px; font-weight:600; color:var(--accent-rose);" id="dash-absent-count">23</div>
+                  <div class="font-mono" style="font-size:9px; color:var(--text-faint);">ABSENT</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 05: Syllabus Coverage -->
+            <div class="ledger-card" onclick="navigate('syllabus')" style="cursor:pointer;">
+              <div class="card-header-bar">
+                <div><span class="card-number-tag">05</span> CURRICULUM REGISTER</div>
+                <div class="font-mono" style="font-size:14px; font-weight:700;">76%</div>
+              </div>
+              <div class="card-heading">Syllabus coverage</div>
+
+              <div class="progress-bar-container">
+                <div class="progress-seg navy" style="width: 76%;"></div>
+              </div>
+
+              <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:0.5rem; margin-top:0.5rem;">
+                <div>
+                  <div class="font-mono" style="font-size:18px; font-weight:600; color:var(--accent-navy);">19</div>
+                  <div class="font-mono" style="font-size:9px; color:var(--text-faint);">COVERED TOPICS</div>
+                </div>
+                <div>
+                  <div class="font-mono" style="font-size:18px; font-weight:600; color:var(--text-faint);">06</div>
+                  <div class="font-mono" style="font-size:9px; color:var(--text-faint);">MISSING TOPICS</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. LIVE CLASSROOM VIEW -->
+        <section id="view-live" class="view-pane">
+          <div class="filter-bar">
+            <div class="filter-group">
+              <span class="status-badge live">● LIVE STREAM</span>
+              <strong style="font-size:12px;">CS-301 · Object-Oriented Programming</strong>
+              <span style="font-size:11px; color:var(--text-faint);">Lab B-204 · Dr. Ayesha Malik</span>
+            </div>
+            <div class="filter-group">
+              <button class="btn-action secondary" onclick="simulateFaceScanDetection()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                <span>Simulate AI Detection</span>
+              </button>
+              <button class="btn-action secondary" id="btn-camera-toggle">
+                <span>Start Webcam / Sim</span>
+              </button>
+              <button class="btn-action primary" onclick="markAllPresentAction()">
+                <span>Mark All Present (QR/Face)</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="grid-2col">
+            <!-- Simulated Camera Feed -->
+            <div class="ledger-card" style="padding:0.75rem;">
+              <div class="camera-frame" id="camera-viewport">
+                <!-- Video or Canvas for real/simulated feed -->
+                <video id="webcam-element" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover; display:none;"></video>
+                <div id="camera-placeholder" style="text-align:center;">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 0.5rem;"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                  <p style="font-family:var(--font-mono); font-size:11px;">AI SMART VISION CAMERA ACTIVE</p>
+                  <p style="font-size:10px; color:#5b6e62;">Automated Facial Recognition & Seat Density Telemetry</p>
+                </div>
+
+                <!-- Bounding Box Overlays
+                <div class="camera-box-overlay" style="top:25%; left:20%; width:80px; height:100px;">
+                  <span class="camera-tag">Ahmed Raza (98%)</span>
+                </div>
+                <div class="camera-box-overlay" style="top:30%; right:25%; width:80px; height:100px;">
+                  <span class="camera-tag">Bilal Shah (96%)</span>
+                </div>
+                -->
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem; font-size:11px; font-family:var(--font-mono);">
+                <span>FPS: 30 · RESOLUTION: 1080P · LATENCY: 42ms</span>
+                <span style="color:var(--accent-green); font-weight:700;">FACE RECOGNITION: MATCHED (24/29)</span>
+              </div>
+            </div>
+
+            <!-- Live Session Telemetry Panel -->
+            <div class="ledger-card">
+              <div class="card-header-bar">
+                <div>TELEMETRY LOG</div>
+                <span>REAL-TIME</span>
+              </div>
+              <div class="card-heading">Live attendee stream</div>
+
+              <div style="max-height:300px; overflow-y:auto; display:flex; flex-direction:column; gap:0.4rem;" id="live-events-stream">
+                <div style="padding:0.45rem 0.6rem; border-left:3px solid var(--accent-green); background:#fbfcf9; font-size:11px;">
+                  <strong>09:00</strong> — Session initialized by Dr. Ayesha Malik
+                </div>
+                <div style="padding:0.45rem 0.6rem; border-left:3px solid var(--accent-green); background:#fbfcf9; font-size:11px;">
+                  <strong>09:04</strong> — Ahmed Raza (CS-24-018) auto-verified via Face ID
+                </div>
+                <div style="padding:0.45rem 0.6rem; border-left:3px solid var(--accent-green); background:#fbfcf9; font-size:11px;">
+                  <strong>09:05</strong> — Bilal Shah (CS-24-031) auto-verified via Face ID
+                </div>
+                <div style="padding:0.45rem 0.6rem; border-left:3px solid var(--accent-gold); background:#fbfcf9; font-size:11px;">
+                  <strong>09:12</strong> — Hira Noor (CS-24-026) stamped LATE (+12m)
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. ATTENDANCE REGISTER VIEW -->
+        <section id="view-attendance" class="view-pane">
+          <div class="filter-bar">
+            <div class="filter-group">
+              <select class="ledger-select" id="att-filter-course" onchange="filterAttendanceRecords()">
+                <option value="All">All Courses</option>
+                <option value="CS-301">CS-301 Object-Oriented Programming</option>
+                <option value="SE-214">SE-214 Web Engineering</option>
+                <option value="CS-205">CS-205 Database Systems</option>
+              </select>
+              <input type="text" class="ledger-input" id="att-search-input" placeholder="Search student name or roll #..." oninput="filterAttendanceRecords()" />
+            </div>
+            <div class="filter-group">
+              <button class="btn-action secondary" onclick="generateRandomAttendance()">
+                <span>+ Random Log</span>
+              </button>
+              <button class="btn-action secondary" onclick="exportTableToCSV('attendance')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Export CSV</span>
+              </button>
+              <button class="btn-action secondary" onclick="openQrModal()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                <span>Generate QR Scanner</span>
+              </button>
+              <button class="btn-action primary" onclick="markAllPresentAction()">
+                <span>Mark All Present</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="ledger-card">
+            <div class="card-header-bar">
+              <div>ATTENDANCE REGISTER</div>
+              <span id="att-record-count">Records loaded</span>
+            </div>
+
+            <div class="table-responsive">
+              <table class="ledger-table">
+                <thead>
+                  <tr>
+                    <th>STUDENT</th>
+                    <th>ROLL NUMBER</th>
+                    <th>COURSE</th>
+                    <th>TIME STAMP</th>
+                    <th>METHOD</th>
+                    <th>STATUS</th>
+                    <th style="text-align:right;">ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="attendance-tbody">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. SYLLABUS TRACKER VIEW -->
+        <section id="view-syllabus" class="view-pane">
+          <div class="filter-bar">
+            <div class="filter-group">
+              <select class="ledger-select" id="syllabus-filter-course" onchange="loadSyllabusTopics()">
+                <option value="CS-301">CS-301 Object-Oriented Programming</option>
+                <option value="SE-214">SE-214 Web Engineering</option>
+                <option value="CS-205">CS-205 Database Systems</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <button class="btn-action secondary" onclick="generateRandomTopic()">
+                <span>+ Random Topic</span>
+              </button>
+              <button class="btn-action secondary" onclick="exportTableToCSV('syllabus')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Export CSV</span>
+              </button>
+              <button class="btn-action primary" onclick="openAddTopicModal()">
+                <span>+ Add Syllabus Topic</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="ledger-card">
+            <div class="card-header-bar">
+              <div>CURRICULUM PROGRESS & TOPIC COMPLIANCE</div>
+              <span id="syllabus-percent-badge" class="font-mono">76% COVERED</span>
+            </div>
+            <div class="card-heading" id="syllabus-course-heading">CS-301 Topic Breakdown</div>
+
+            <div class="table-responsive">
+              <table class="ledger-table">
+                <thead>
+                  <tr>
+                    <th style="width:40px;">STATUS</th>
+                    <th>WEEK / TOPIC NAME</th>
+                    <th>ESTIMATED HOURS</th>
+                    <th>LECTURE COVERED</th>
+                    <th style="text-align:right;">TOGGLE & ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="syllabus-tbody">
+                  <!-- Dynamic syllabus rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. STUDENTS DIRECTORY VIEW -->
+        <section id="view-students" class="view-pane">
+          <div class="filter-bar">
+            <div class="filter-group">
+              <input type="text" class="ledger-input" id="student-search-input" placeholder="Search students by name, roll, email..." oninput="loadStudentsDirectory()" />
+              <select class="ledger-select" id="student-dept-select" onchange="loadStudentsDirectory()">
+                <option value="All">All Departments</option>
+                <option value="Computer Science">Computer Science</option>
+                <option value="Software Engineering">Software Engineering</option>
+                <option value="Information Technology">Information Technology</option>
+                <option value="Electrical Engineering">Electrical Engineering</option>
+                <option value="Business Administration">Business Administration</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <button class="btn-action secondary" onclick="generateRandomStudent()">
+                <span>+ Random Student</span>
+              </button>
+              <button class="btn-action secondary" onclick="exportTableToCSV('students')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Export CSV</span>
+              </button>
+              <button class="btn-action primary" onclick="openAddStudentModal()">
+                <span>+ Enroll Student</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="ledger-card">
+            <div class="card-header-bar">
+              <div>STUDENT REGISTRY</div>
+              <span id="students-count-badge">Loaded</span>
+            </div>
+
+            <div class="table-responsive">
+              <table class="ledger-table">
+                <thead>
+                  <tr>
+                    <th>STUDENT NAME</th>
+                    <th>ROLL #</th>
+                    <th>DEPARTMENT</th>
+                    <th>SEMESTER</th>
+                    <th>ATTENDANCE RATE</th>
+                    <th>GPA</th>
+                    <th style="text-align:right;">ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="students-tbody">
+                  <!-- Populated via API -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. TEACHERS DIRECTORY VIEW -->
+        <section id="view-teachers" class="view-pane">
+          <div class="filter-bar">
+            <div class="filter-group">
+              <input type="text" class="ledger-input" id="teacher-search-input" placeholder="Search faculty by name or email..." oninput="loadTeachersDirectory()" />
+            </div>
+            <div class="filter-group">
+              <button class="btn-action secondary" onclick="generateRandomTeacher()">
+                <span>+ Random Faculty</span>
+              </button>
+              <button class="btn-action secondary" onclick="exportTableToCSV('teachers')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Export CSV</span>
+              </button>
+              <button class="btn-action primary" onclick="openAddTeacherModal()">
+                <span>+ Add Faculty</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="ledger-card">
+            <div class="card-header-bar">
+              <div>FACULTY REGISTER</div>
+              <span id="teachers-count-badge">Loaded</span>
+            </div>
+
+            <div class="table-responsive">
+              <table class="ledger-table">
+                <thead>
+                  <tr>
+                    <th>FACULTY MEMBER</th>
+                    <th>TITLE</th>
+                    <th>DEPARTMENT</th>
+                    <th>LECTURES LOGGED</th>
+                    <th>AVG ATTENDANCE</th>
+                    <th style="text-align:right;">ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="teachers-tbody">
+                  <!-- Populated via API -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. COURSES & SUBJECTS VIEW -->
+        <section id="view-courses" class="view-pane">
+          <div class="filter-bar">
+            <div class="filter-group">
+              <input type="text" class="ledger-input" id="course-search-input" placeholder="Search course code or title..." oninput="loadCoursesDirectory()" />
+            </div>
+            <div class="filter-group">
+              <button class="btn-action secondary" onclick="generateRandomCourse()">
+                <span>+ Random Course</span>
+              </button>
+              <button class="btn-action secondary" onclick="exportTableToCSV('courses')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Export CSV</span>
+              </button>
+              <button class="btn-action primary" onclick="openAddCourseModal()">
+                <span>+ Create Course</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="ledger-card">
+            <div class="card-header-bar">
+              <div>CURRICULUM CATALOG</div>
+              <span id="courses-count-badge">Loaded</span>
+            </div>
+
+            <div class="table-responsive">
+              <table class="ledger-table">
+                <thead>
+                  <tr>
+                    <th>COURSE CODE</th>
+                    <th>TITLE</th>
+                    <th>LEAD INSTRUCTOR</th>
+                    <th>CREDITS</th>
+                    <th>ENROLLED</th>
+                    <th>COVERAGE</th>
+                    <th style="text-align:right;">ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="courses-tbody">
+                  <!-- Populated via API -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 8. LECTURE LOGS VIEW -->
+        <section id="view-lectures" class="view-pane">
+          <div class="filter-bar">
+            <div class="filter-group">
+              <select class="ledger-select" id="lectures-filter-status" onchange="loadLecturesDirectory()">
+                <option value="All">All Statuses</option>
+                <option value="Live">Live</option>
+                <option value="Completed">Completed</option>
+                <option value="Upcoming">Upcoming</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <button class="btn-action secondary" onclick="generateRandomLecture()">
+                <span>+ Random Lecture</span>
+              </button>
+              <button class="btn-action secondary" onclick="exportTableToCSV('lectures')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Export CSV</span>
+              </button>
+              <button class="btn-action primary" onclick="openAddLectureModal()">
+                <span>+ Schedule Lecture</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="ledger-card">
+            <div class="card-header-bar">
+              <div>SESSION LOGS</div>
+              <span>HISTORY</span>
+            </div>
+
+            <div class="table-responsive">
+              <table class="ledger-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>COURSE</th>
+                    <th>FACULTY</th>
+                    <th>DATE & TIME</th>
+                    <th>ATTENDANCE</th>
+                    <th>STATUS</th>
+                    <th style="text-align:right;">ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="lectures-tbody">
+                  <!-- Populated via API -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 9. LECTURE REPORTS & PRINT VIEW -->
+        <section id="view-reports" class="view-pane">
+          <div class="filter-bar">
+            <div class="filter-group">
+              <strong style="font-size:12px;">Official Registrar Transcripts & Reports</strong>
+            </div>
+            <div class="filter-group">
+              <button class="btn-action secondary" onclick="generateRandomReport()">
+                <span>+ Random Report</span>
+              </button>
+              <button class="btn-action secondary" onclick="exportTableToCSV('reports')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Export CSV</span>
+              </button>
+              <button class="btn-action secondary" onclick="window.print()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                <span>Print Official PDF</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="ledger-card">
+            <div class="card-header-bar">
+              <div>GENERATED AUDIT LOGS</div>
+              <span>COMPLIANCE</span>
+            </div>
+
+            <div class="table-responsive">
+              <table class="ledger-table">
+                <thead>
+                  <tr>
+                    <th>REPORT ID</th>
+                    <th>COURSE</th>
+                    <th>GENERATED DATE</th>
+                    <th>ATTENDANCE</th>
+                    <th>COVERAGE</th>
+                    <th style="text-align:right;">ACTION</th>
+                  </tr>
+                </thead>
+                <tbody id="reports-tbody">
+                  <!-- Populated via API -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+  <!-- 1. Enroll Student Modal -->
+  <div class="modal-backdrop" id="modal-add-student">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-size:14px; font-weight:700;">Enroll New Student</h3>
+        <button onclick="closeModal('modal-add-student')" style="background:none; border:none; font-size:16px; cursor:pointer;">&times;</button>
+      </div>
+      <form id="form-add-student" onsubmit="handleCreateStudent(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="new-student-name" required placeholder="e.g. Maryam Ali" />
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="new-student-email" required placeholder="e.g. maryam.ali@bbsul.edu.pk" />
+          </div>
+          <div class="form-group">
+            <label>Department</label>
+            <select id="new-student-dept">
+              <option value="Computer Science">Computer Science</option>
+              <option value="Software Engineering">Software Engineering</option>
+              <option value="Information Technology">Information Technology</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Semester (1-8)</label>
+            <input type="number" id="new-student-semester" min="1" max="8" value="4" required />
+          </div>
+          <div class="form-group">
+            <label>Section</label>
+            <input type="text" id="new-student-section" value="A" required />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-action secondary" onclick="closeModal('modal-add-student')">Cancel</button>
+          <button type="submit" class="btn-action primary">Save & Register Face Profile</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Add Faculty Modal -->
+  <div class="modal-backdrop" id="modal-add-teacher">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-size:14px; font-weight:700;">Register Faculty Member</h3>
+        <button onclick="closeModal('modal-add-teacher')" style="background:none; border:none; font-size:16px; cursor:pointer;">&times;</button>
+      </div>
+      <form id="form-add-teacher" onsubmit="handleCreateTeacher(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Faculty Full Name</label>
+            <input type="text" id="new-teacher-name" required placeholder="e.g. Prof. Tariq Shah" />
+          </div>
+          <div class="form-group">
+            <label>Academic Title</label>
+            <select id="new-teacher-title">
+              <option value="Professor">Professor</option>
+              <option value="Associate Professor">Associate Professor</option>
+              <option value="Assistant Professor" selected>Assistant Professor</option>
+              <option value="Lecturer">Lecturer</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="new-teacher-email" required placeholder="e.g. tariq.shah@bbsul.edu.pk" />
+          </div>
+          <div class="form-group">
+            <label>Department</label>
+            <select id="new-teacher-dept">
+              <option value="Computer Science">Computer Science</option>
+              <option value="Software Engineering">Software Engineering</option>
+              <option value="Information Technology">Information Technology</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-action secondary" onclick="closeModal('modal-add-teacher')">Cancel</button>
+          <button type="submit" class="btn-action primary">Register Faculty</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Add Syllabus Topic Modal -->
+  <div class="modal-backdrop" id="modal-add-topic">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-size:14px; font-weight:700;">Add Syllabus Unit / Topic</h3>
+        <button onclick="closeModal('modal-add-topic')" style="background:none; border:none; font-size:16px; cursor:pointer;">&times;</button>
+      </div>
+      <form id="form-add-topic" onsubmit="handleCreateTopic(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Target Course</label>
+            <select id="new-topic-course">
+              <option value="CS-301">CS-301 Object-Oriented Programming</option>
+              <option value="SE-214">SE-214 Web Engineering</option>
+              <option value="CS-205">CS-205 Database Systems</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Topic Title</label>
+            <input type="text" id="new-topic-title" required placeholder="e.g. Polymorphism & Virtual Functions" />
+          </div>
+          <div class="form-group">
+            <label>Estimated Lecture Hours</label>
+            <input type="number" id="new-topic-hours" min="1" max="12" value="3" required />
+          </div>
+          <div class="form-group">
+            <label>Topic Description / Core Concepts</label>
+            <textarea id="new-topic-desc" rows="2" placeholder="Summary of learning outcomes and practical lab modules..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-action secondary" onclick="closeModal('modal-add-topic')">Cancel</button>
+          <button type="submit" class="btn-action primary">Save Topic to Curriculum</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Add Course Modal -->
+  <div class="modal-backdrop" id="modal-add-course">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-size:14px; font-weight:700;">Create Academic Course</h3>
+        <button onclick="closeModal('modal-add-course')" style="background:none; border:none; font-size:16px; cursor:pointer;">&times;</button>
+      </div>
+      <form id="form-add-course" onsubmit="handleCreateCourse(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Course Code</label>
+            <input type="text" id="new-course-code" required placeholder="e.g. CS-402" />
+          </div>
+          <div class="form-group">
+            <label>Course Title</label>
+            <input type="text" id="new-course-title" required placeholder="e.g. Cloud Computing & Distributed Systems" />
+          </div>
+          <div class="form-group">
+            <label>Lead Instructor</label>
+            <input type="text" id="new-course-teacher" required placeholder="e.g. Dr. Ayesha Malik" />
+          </div>
+          <div class="form-group">
+            <label>Department</label>
+            <select id="new-course-dept">
+              <option value="Computer Science">Computer Science</option>
+              <option value="Software Engineering">Software Engineering</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Credit Hours</label>
+            <input type="number" id="new-course-credits" min="1" max="4" value="3" required />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-action secondary" onclick="closeModal('modal-add-course')">Cancel</button>
+          <button type="submit" class="btn-action primary">Register Course</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. Add Lecture Modal -->
+  <div class="modal-backdrop" id="modal-add-lecture">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-size:14px; font-weight:700;">Schedule Lecture Session</h3>
+        <button onclick="closeModal('modal-add-lecture')" style="background:none; border:none; font-size:16px; cursor:pointer;">&times;</button>
+      </div>
+      <form id="form-add-lecture" onsubmit="handleCreateLecture(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Course</label>
+            <select id="new-lecture-course">
+              <option value="CS-301">CS-301 Object-Oriented Programming</option>
+              <option value="SE-214">SE-214 Web Engineering</option>
+              <option value="CS-205">CS-205 Database Systems</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Instructor</label>
+            <input type="text" id="new-lecture-teacher" required value="Dr. Ayesha Malik" />
+          </div>
+          <div class="form-group">
+            <label>Room / Lab</label>
+            <input type="text" id="new-lecture-room" required value="Lab B-204" />
+          </div>
+          <div class="form-group">
+            <label>Start & End Time</label>
+            <div style="display:flex; gap:0.5rem;">
+              <input type="time" id="new-lecture-start" value="11:30" required />
+              <input type="time" id="new-lecture-end" value="13:00" required />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-action secondary" onclick="closeModal('modal-add-lecture')">Cancel</button>
+          <button type="submit" class="btn-action primary">Schedule & Arm Telemetry</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. QR Code Simulation Modal -->
+  <div class="modal-backdrop" id="modal-qr">
+    <div class="modal-box" style="text-align:center;">
+      <div class="modal-header">
+        <h3 style="font-size:14px; font-weight:700;">Live Session QR Code</h3>
+        <button onclick="closeModal('modal-qr')" style="background:none; border:none; font-size:16px; cursor:pointer;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="padding:1.5rem; background:#ffffff; display:inline-block; border:1px solid var(--border-subtle); border-radius:4px; margin-bottom:1rem;">
+          <!-- SVG QR Code -->
+          <svg width="160" height="160" viewBox="0 0 100 100" fill="#11231a">
+            <rect x="10" y="10" width="20" height="20" />
+            <rect x="70" y="10" width="20" height="20" />
+            <rect x="10" y="70" width="20" height="20" />
+            <rect x="38" y="10" width="8" height="8" />
+            <rect x="52" y="10" width="8" height="8" />
+            <rect x="38" y="38" width="24" height="24" />
+            <rect x="70" y="50" width="10" height="10" />
+            <rect x="50" y="70" width="10" height="10" />
+            <rect x="70" y="70" width="20" height="20" />
+          </svg>
+        </div>
+        <p style="font-family:var(--font-mono); font-size:11px; color:var(--text-main); font-weight:600;">TOKEN: BBSUL-LIVE-CS301-TOKEN-9418</p>
+        <p style="font-size:11px; color:var(--text-faint); margin-top:0.25rem;">Students scan with university portal mobile app to register geolocation presence.</p>
+      </div>
+      <div class="modal-footer" style="justify-content:center;">
+        <button class="btn-action primary" onclick="simulateStudentScan()">Simulate Student Scan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Student Dossier Detail Modal -->
+  <div class="modal-backdrop" id="modal-student-detail">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-size:14px; font-weight:700;">Student Profile & Biometrics Dossier</h3>
+        <button onclick="closeModal('modal-student-detail')" style="background:none; border:none; font-size:16px; cursor:pointer;">&times;</button>
+      </div>
+      <div class="modal-body" id="student-detail-content">
+        <!-- Injected dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn-action secondary" onclick="closeModal('modal-student-detail')">Close</button>
+        <button class="btn-action primary" id="student-detail-action-btn">Log Quick Presence</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. Teacher Dossier Detail Modal -->
+  <div class="modal-backdrop" id="modal-teacher-detail">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-size:14px; font-weight:700;">Faculty Member Dossier</h3>
+        <button onclick="closeModal('modal-teacher-detail')" style="background:none; border:none; font-size:16px; cursor:pointer;">&times;</button>
+      </div>
+      <div class="modal-body" id="teacher-detail-content">
+        <!-- Injected dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn-action secondary" onclick="closeModal('modal-teacher-detail')">Close</button>
+        <button class="btn-action primary" onclick="closeModal('modal-teacher-detail'); openAddLectureModal();">Schedule Lecture</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. Report Audit Detail Modal -->
+  <div class="modal-backdrop" id="modal-report-detail">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-size:14px; font-weight:700;">Official Registrar Audit Transcript</h3>
+        <button onclick="closeModal('modal-report-detail')" style="background:none; border:none; font-size:16px; cursor:pointer;">&times;</button>
+      </div>
+      <div class="modal-body" id="report-detail-content">
+        <!-- Injected dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn-action secondary" onclick="closeModal('modal-report-detail')">Close</button>
+        <button class="btn-action primary" onclick="window.print()">Print Transcript</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification element -->
+  <div id="toast-notification"></div>
+
+  <!-- ==================== FRONTEND JAVASCRIPT ==================== -->
+  <script>
+    // App State
+    let currentView = 'dashboard';
+    let currentPersona = 'admin'; // 'admin' | 'faculty' | 'student'
+    let webCamActive = false;
+
+    // View Navigation
+    function navigate(viewName) {
+      currentView = viewName;
+      document.querySelectorAll('.view-pane').forEach(el => el.classList.remove('active'));
+      const targetPane = document.getElementById('view-' + viewName);
+      if (targetPane) targetPane.classList.add('active');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
+      });
+
+      // Update Header Title
+      const titleMap = {
+        'dashboard': 'Dashboard',
+        'live': 'Live Classroom',
+        'attendance': 'Attendance Register',
+        'syllabus': 'Syllabus Tracker',
+        'students': 'Students Directory',
+        'teachers': 'Teachers Directory',
+        'courses': 'Courses & Subjects',
+        'lectures': 'Lecture Logs',
+        'reports': 'Lecture Reports'
+      };
+      document.getElementById('header-title-text').innerText = titleMap[viewName] || 'Dashboard';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Refresh data on view change
+      if (viewName === 'dashboard') loadDashboardData();
+      if (viewName === 'attendance') loadAttendanceRecords();
+      if (viewName === 'syllabus') loadSyllabusTopics();
+      if (viewName === 'students') loadStudentsDirectory();
+      if (viewName === 'teachers') loadTeachersDirectory();
+      if (viewName === 'courses') loadCoursesDirectory();
+      if (viewName === 'lectures') loadLecturesDirectory();
+      if (viewName === 'reports') loadReportsDirectory();
+    }
+
+    // Bind sidebar buttons
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const view = btn.getAttribute('data-view');
+        if (view) navigate(view);
+      });
+    });
+
+    document.getElementById('brand-header-trigger').addEventListener('click', () => navigate('dashboard'));
+    document.getElementById('quick-action-btn').addEventListener('click', () => {
+      if (currentView === 'students') openAddStudentModal();
+      else if (currentView === 'teachers') openAddTeacherModal();
+      else if (currentView === 'syllabus') openAddTopicModal();
+      else openAddStudentModal();
+    });
+
+    // Persona Switcher
+    const personas = [
+      { role: 'admin', name: 'Sara Khan', roleLabel: 'Department Admin / Registrar', monogram: 'SK' },
+      { role: 'faculty', name: 'Dr. Ayesha Malik', roleLabel: 'Associate Professor & Course Lead', monogram: 'AM' },
+      { role: 'student', name: 'Ahmed Raza', roleLabel: 'Student · Roll No: CS-24-018', monogram: 'AR' }
+    ];
+
+    document.getElementById('persona-toggle-btn').addEventListener('click', () => {
+      const curIdx = personas.findIndex(p => p.role === currentPersona);
+      const nextP = personas[(curIdx + 1) % personas.length];
+      currentPersona = nextP.role;
+      document.getElementById('sidebar-user-name').innerText = nextP.name;
+      document.getElementById('sidebar-user-role').innerText = nextP.roleLabel;
+      document.getElementById('sidebar-user-avatar').innerText = nextP.monogram;
+      showToast(`Switched persona to ${nextP.name} (${nextP.role})`);
+    });
+
+    // Toast Notification System
+    function showToast(message) {
+      const toast = document.getElementById('toast-notification');
+      toast.innerText = message;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3000);
+    }
+
+    // Modal helpers
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+    function openAddStudentModal() { openModal('modal-add-student'); }
+    function openAddTeacherModal() { openModal('modal-add-teacher'); }
+    function openAddTopicModal() { openModal('modal-add-topic'); }
+    function openAddCourseModal() { openModal('modal-add-course'); }
+    function openAddLectureModal() { openModal('modal-add-lecture'); }
+    function openQrModal() { openModal('modal-qr'); }
+
+    // ==================== CSV EXPORT SYSTEM ====================
+    async function exportTableToCSV(type) {
+      try {
+        let endpoint = `/api/${type}`;
+        if (type === 'dashboard') endpoint = '/api/lectures';
+        const res = await fetch(endpoint);
+        const data = await res.json();
+        
+        if (!Array.isArray(data) || data.length === 0) {
+          showToast('No records available to export.');
+          return;
+        }
+
+        const headers = Object.keys(data[0]);
+        const csvRows = [headers.join(',')];
+
+        data.forEach(item => {
+          const values = headers.map(header => {
+            const val = item[header] === undefined || item[header] === null ? '' : String(item[header]);
+            return `"${val.replace(/"/g, '""')}"`;
+          });
+          csvRows.push(values.join(','));
+        });
+
+        const csvString = csvRows.join('\n');
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `registrar_${type}_export_${new Date().toISOString().slice(0,10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast(`Exported ${data.length} ${type} records to CSV`);
+      } catch (err) {
+        showToast('Error generating CSV export');
+        console.error(err);
+      }
+    }
+
+    // ==================== RANDOM RECORD GENERATORS ====================
+    async function generateRandomBatch() {
+      showToast('Generating random batch across all ledger records...');
+      try {
+        const res = await fetch('/api/random/all', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ countPerEntity: 3 })
+        });
+        const result = await res.json();
+        showToast(`Random Seed Success: +${result.students.length} students, +${result.teachers.length} faculty, +${result.courses.length} courses, +${result.attendance.length} logs!`);
+        refreshCurrentViewData();
+        loadDashboardData();
+      } catch (err) {
+        showToast('Failed to generate random batch');
+        console.error(err);
+      }
+    }
+
+    async function generateRandomStudent() {
+      try {
+        const res = await fetch('/api/random/students', { method: 'POST' });
+        const st = await res.json();
+        showToast(`Generated random student: ${st.name} (${st.rollNumber})`);
+        loadStudentsDirectory();
+        loadDashboardData();
+      } catch (err) {
+        showToast('Failed to generate random student');
+      }
+    }
+
+    async function generateRandomTeacher() {
+      try {
+        const res = await fetch('/api/random/teachers', { method: 'POST' });
+        const tc = await res.json();
+        showToast(`Generated random faculty: ${tc.name} (${tc.department})`);
+        loadTeachersDirectory();
+        loadDashboardData();
+      } catch (err) {
+        showToast('Failed to generate random faculty');
+      }
+    }
+
+    async function generateRandomCourse() {
+      try {
+        const res = await fetch('/api/random/courses', { method: 'POST' });
+        const c = await res.json();
+        showToast(`Generated random course: ${c.code} - ${c.name}`);
+        loadCoursesDirectory();
+        loadDashboardData();
+      } catch (err) {
+        showToast('Failed to generate random course');
+      }
+    }
+
+    async function generateRandomLecture() {
+      try {
+        const res = await fetch('/api/random/lectures', { method: 'POST' });
+        const lec = await res.json();
+        showToast(`Generated random lecture: ${lec.courseCode} in ${lec.room}`);
+        loadLecturesDirectory();
+        loadDashboardData();
+      } catch (err) {
+        showToast('Failed to generate random lecture');
+      }
+    }
+
+    async function generateRandomAttendance() {
+      try {
+        const res = await fetch('/api/random/attendance', { method: 'POST' });
+        const att = await res.json();
+        showToast(`Logged random attendance: ${att.studentName} [${att.status}]`);
+        loadAttendanceRecords();
+        loadDashboardData();
+      } catch (err) {
+        showToast('Failed to log random attendance');
+      }
+    }
+
+    async function generateRandomTopic() {
+      try {
+        const courseId = document.getElementById('syllabus-filter-course')?.value || 'CS-301';
+        const res = await fetch('/api/random/syllabus', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ courseId })
+        });
+        const top = await res.json();
+        showToast(`Added random syllabus topic: ${top.title}`);
+        loadSyllabusTopics();
+      } catch (err) {
+        showToast('Failed to add random syllabus topic');
+      }
+    }
+
+    async function generateRandomReport() {
+      try {
+        const res = await fetch('/api/random/reports', { method: 'POST' });
+        const rpt = await res.json();
+        showToast(`Generated random audit report: ${rpt.id} for ${rpt.courseCode}`);
+        loadReportsDirectory();
+      } catch (err) {
+        showToast('Failed to generate random report');
+      }
+    }
+
+    function refreshCurrentViewData() {
+      if (currentView === 'dashboard') loadDashboardData();
+      else if (currentView === 'attendance') loadAttendanceRecords();
+      else if (currentView === 'syllabus') loadSyllabusTopics();
+      else if (currentView === 'students') loadStudentsDirectory();
+      else if (currentView === 'teachers') loadTeachersDirectory();
+      else if (currentView === 'courses') loadCoursesDirectory();
+      else if (currentView === 'lectures') loadLecturesDirectory();
+      else if (currentView === 'reports') loadReportsDirectory();
+    }
+
+    // ==================== API INTEGRATIONS ====================
+
+    // 1. Dashboard API Loader
+    async function loadDashboardData() {
+      try {
+        const statsRes = await fetch('/api/stats');
+        const stats = await statsRes.json();
+        document.getElementById('kpi-total-students').innerText = stats.totalStudents || '248';
+        document.getElementById('kpi-total-teachers').innerText = stats.totalTeachers || '18';
+        document.getElementById('kpi-today-lectures').innerText = stats.todayLectures || '12';
+        document.getElementById('kpi-avg-attendance').innerText = (stats.averageAttendance || 84) + '%';
+        document.getElementById('dash-present-count').innerText = stats.attendancePresentCount || '208';
+        document.getElementById('dash-late-count').innerText = stats.attendanceLateCount || '17';
+        document.getElementById('dash-absent-count').innerText = stats.attendanceAbsentCount || '23';
+
+        const lecturesRes = await fetch('/api/lectures');
+        const lectures = await lecturesRes.json();
+        const tbody = document.getElementById('dashboard-lectures-tbody');
+        tbody.innerHTML = '';
+
+        lectures.slice(0, 4).forEach(lec => {
+          const tr = document.createElement('tr');
+          const isLive = lec.status === 'Live';
+          tr.innerHTML = `
+            <td>
+              <div style="font-weight:700;">${lec.courseCode} ${lec.courseName}</div>
+              <div style="font-size:10px; color:var(--text-faint);">${lec.teacherName}</div>
+            </td>
+            <td class="font-mono">${lec.room || 'Lab B-204'}</td>
+            <td class="font-mono">${lec.startTime}–${lec.endTime}</td>
+            <td class="font-mono">${lec.attendanceRate}%</td>
+            <td style="text-align:right;">
+              <span class="status-badge ${isLive ? 'live' : ''}">${isLive ? '● Live' : lec.status}</span>
+            </td>
+          `;
+          tr.onclick = () => navigate('live');
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+      }
+    }
+
+    // 2. Attendance Register API Loader
+    async function loadAttendanceRecords() {
+      try {
+        const res = await fetch('/api/attendance');
+        const records = await res.json();
+        renderAttendanceTable(records);
+      } catch (err) {
+        console.error('Error loading attendance:', err);
+      }
+    }
+
+    function filterAttendanceRecords() {
+      const courseFilter = document.getElementById('att-filter-course').value;
+      const searchFilter = document.getElementById('att-search-input').value.toLowerCase();
+
+      fetch('/api/attendance')
+        .then(res => res.json())
+        .then(records => {
+          let filtered = records;
+          if (courseFilter !== 'All') {
+            filtered = filtered.filter(r => r.courseCode === courseFilter);
+          }
+          if (searchFilter) {
+            filtered = filtered.filter(r => 
+              (r.studentName && r.studentName.toLowerCase().includes(searchFilter)) ||
+              (r.rollNumber && r.rollNumber.toLowerCase().includes(searchFilter))
+            );
+          }
+          renderAttendanceTable(filtered);
+        });
+    }
+
+    function renderAttendanceTable(records) {
+      const tbody = document.getElementById('attendance-tbody');
+      tbody.innerHTML = '';
+      document.getElementById('att-record-count').innerText = `${records.length} records`;
+
+      records.forEach(rec => {
+        const tr = document.createElement('tr');
+        const statusClass = rec.status ? rec.status.toLowerCase() : 'present';
+        tr.innerHTML = `
+          <td><strong>${rec.studentName}</strong></td>
+          <td class="font-mono">${rec.rollNumber}</td>
+          <td class="font-mono">${rec.courseCode}</td>
+          <td class="font-mono">${rec.timestamp}</td>
+          <td style="font-size:10.5px; color:var(--text-faint);">${rec.method}</td>
+          <td><span class="status-badge ${statusClass}">${rec.status}</span></td>
+          <td style="text-align:right;">
+            <button class="btn-action secondary" style="padding:2px 6px; font-size:10px; margin-right:4px;" onclick="toggleAttendanceStatus('${rec.id}', '${rec.status}')">Toggle Status</button>
+            <button class="btn-action secondary" style="padding:2px 6px; font-size:10px;" onclick="deleteAttendanceRecord('${rec.id}')">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function toggleAttendanceStatus(id, currentStatus) {
+      const nextStatus = currentStatus === 'Present' ? 'Absent' : currentStatus === 'Absent' ? 'Late' : 'Present';
+      try {
+        await fetch(`/api/attendance/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: nextStatus, timestamp: new Date().toLocaleTimeString('en-GB') })
+        });
+        showToast(`Updated attendance status to ${nextStatus}`);
+        loadAttendanceRecords();
+        loadDashboardData();
+      } catch (err) {
+        showToast('Failed to update status');
+      }
+    }
+
+    async function deleteAttendanceRecord(id) {
+      if (!confirm('Delete this attendance entry?')) return;
+      try {
+        await fetch(`/api/attendance/${id}`, { method: 'DELETE' });
+        showToast('Attendance entry deleted');
+        loadAttendanceRecords();
+        loadDashboardData();
+      } catch (err) {
+        showToast('Error deleting attendance log');
+      }
+    }
+
+    async function markAllPresentAction() {
+      try {
+        await fetch('/api/attendance/bulk-present', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+        showToast('All registered students marked PRESENT for today');
+        if (currentView === 'attendance') loadAttendanceRecords();
+        if (currentView === 'dashboard') loadDashboardData();
+      } catch (err) {
+        showToast('Bulk update error');
+      }
+    }
+
+    async function simulateStudentScan() {
+      try {
+        await fetch('/api/attendance/simulate-qr', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studentId: 'ST-2024-018', courseCode: 'CS-301' })
+        });
+        closeModal('modal-qr');
+        showToast('QR Code Verified: Ahmed Raza marked PRESENT');
+        if (currentView === 'attendance') loadAttendanceRecords();
+        if (currentView === 'dashboard') loadDashboardData();
+      } catch (err) {
+        showToast('QR verification failed');
+      }
+    }
+
+    // 3. Syllabus Tracker API Loader
+    async function loadSyllabusTopics() {
+      const courseId = document.getElementById('syllabus-filter-course').value;
+      const heading = document.getElementById('syllabus-course-heading');
+      if (heading) heading.innerText = `${courseId} Topic Breakdown`;
+
+      try {
+        const res = await fetch(`/api/syllabus?courseId=${courseId}`);
+        const topics = await res.json();
+        const tbody = document.getElementById('syllabus-tbody');
+        tbody.innerHTML = '';
+
+        let coveredCount = 0;
+        topics.forEach((t, idx) => {
+          const isCovered = t.status === 'Covered';
+          if (isCovered) coveredCount++;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>
+              <input type="checkbox" ${isCovered ? 'checked' : ''} onchange="toggleTopicCovered('${t.id}', this.checked)" style="cursor:pointer;" />
+            </td>
+            <td>
+              <div style="font-weight:700;">Week ${idx + 1}: ${t.title}</div>
+              <div style="font-size:10px; color:var(--text-faint);">${t.description || 'Core theoretical concepts and practical labs.'}</div>
+            </td>
+            <td class="font-mono">${t.estimatedHours} hrs</td>
+            <td class="font-mono">${t.lectureCovered || (isCovered ? 'Lecture 12 (09:00)' : '—')}</td>
+            <td style="text-align:right;">
+              <button class="btn-action secondary" style="padding:2px 6px; font-size:10px; margin-right:4px;" onclick="toggleTopicCovered('${t.id}', ${!isCovered})">${isCovered ? 'Mark Pending' : 'Mark Covered'}</button>
+              <button class="btn-action secondary" style="padding:2px 6px; font-size:10px;" onclick="deleteTopic('${t.id}')">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        const percent = topics.length > 0 ? Math.round((coveredCount / topics.length) * 100) : 76;
+        document.getElementById('syllabus-percent-badge').innerText = `${percent}% COVERED (${coveredCount}/${topics.length})`;
+      } catch (err) {
+        console.error('Error loading syllabus topics:', err);
+      }
+    }
+
+    async function toggleTopicCovered(topicId, isChecked) {
+      const status = isChecked ? 'Covered' : 'Pending';
+      try {
+        await fetch(`/api/syllabus/${topicId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        showToast(`Topic marked as ${status}`);
+        loadSyllabusTopics();
+      } catch (err) {
+        showToast('Failed to update syllabus topic');
+      }
+    }
+
+    async function deleteTopic(id) {
+      if (!confirm('Remove this topic from curriculum?')) return;
+      try {
+        await fetch(`/api/syllabus/${id}`, { method: 'DELETE' });
+        showToast('Syllabus topic removed');
+        loadSyllabusTopics();
+      } catch (err) {
+        showToast('Error removing topic');
+      }
+    }
+
+    // 4. Students Directory API Loader
+    async function loadStudentsDirectory() {
+      const search = document.getElementById('student-search-input').value;
+      const dept = document.getElementById('student-dept-select').value;
+      let url = '/api/students?';
+      if (search) url += `search=${encodeURIComponent(search)}&`;
+      if (dept && dept !== 'All') url += `department=${encodeURIComponent(dept)}&`;
+
+      try {
+        const res = await fetch(url);
+        const students = await res.json();
+        const tbody = document.getElementById('students-tbody');
+        tbody.innerHTML = '';
+        document.getElementById('students-count-badge').innerText = `${students.length} students enrolled`;
+
+        students.forEach(st => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>
+              <div style="font-weight:700;">${st.name}</div>
+              <div style="font-size:10px; color:var(--text-faint);">${st.email}</div>
+            </td>
+            <td class="font-mono">${st.rollNumber}</td>
+            <td>${st.department}</td>
+            <td class="font-mono">Semester ${st.semester} (${st.section || 'A'})</td>
+            <td class="font-mono">${st.attendanceRate}%</td>
+            <td class="font-mono font-bold">${st.gpa || '3.50'}</td>
+            <td style="text-align:right;">
+              <button class="btn-action secondary" style="padding:2px 6px; font-size:10px; margin-right:4px;" onclick="viewStudentDetails('${st.id}')">View Dossier</button>
+              <button class="btn-action secondary" style="padding:2px 6px; font-size:10px;" onclick="deleteStudent('${st.id}')">Remove</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Error loading students:', err);
+      }
+    }
+
+    async function viewStudentDetails(id) {
+      try {
+        const res = await fetch(`/api/students`);
+        const list = await res.json();
+        const st = list.find(s => s.id === id);
+        if (!st) return;
+
+        const container = document.getElementById('student-detail-content');
+        container.innerHTML = `
+          <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem; padding:0.75rem; background:#f4f6f0; border-radius:4px;">
+            <div style="width:48px; height:48px; border-radius:50%; background:var(--forest-green); color:var(--accent-cream); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px;">
+              ${st.name.split(' ').map(n=>n[0]).join('').slice(0,2)}
+            </div>
+            <div>
+              <h4 style="margin:0; font-size:14px; font-weight:700;">${st.name}</h4>
+              <p style="margin:2px 0 0; font-size:11px; color:var(--text-faint);">${st.rollNumber} · ${st.department}</p>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; font-size:11px; margin-bottom:1rem;">
+            <div><strong>Email:</strong> ${st.email}</div>
+            <div><strong>Semester:</strong> Semester ${st.semester} (Sec ${st.section || 'A'})</div>
+            <div><strong>Attendance Rate:</strong> <span style="color:var(--accent-green); font-weight:700;">${st.attendanceRate}%</span></div>
+            <div><strong>GPA:</strong> ${st.gpa || '3.50'}</div>
+            <div><strong>Biometric Face ID:</strong> <span style="color:var(--accent-green);">Registered & Verified</span></div>
+            <div><strong>Status:</strong> Active Enrolled</div>
+          </div>
+          <div style="font-size:11px; border-top:1px solid var(--border-light); padding-top:0.75rem;">
+            <strong>Recent Attendance Summary:</strong>
+            <p style="color:var(--text-faint); margin-top:0.25rem;">Present in CS-301 (09:04 AM) · Present in SE-214 (Yesterday) · Present in CS-205 (2 days ago)</p>
+          </div>
+        `;
+
+        document.getElementById('student-detail-action-btn').onclick = async () => {
+          try {
+            await fetch('/api/attendance', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                studentId: st.id,
+                studentName: st.name,
+                rollNumber: st.rollNumber,
+                courseCode: 'CS-301',
+                status: 'Present',
+                method: 'Manual Registrar Stamp',
+                timestamp: new Date().toLocaleTimeString('en-GB')
+              })
+            });
+            showToast(`Logged instant presence for ${st.name}`);
+            closeModal('modal-student-detail');
+            loadAttendanceRecords();
+            loadDashboardData();
+          } catch(e) {
+            showToast('Error stamping presence');
+          }
+        };
+
+        openModal('modal-student-detail');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function handleCreateStudent(e) {
+      e.preventDefault();
+      const name = document.getElementById('new-student-name').value;
+      const email = document.getElementById('new-student-email').value;
+      const department = document.getElementById('new-student-dept').value;
+      const semester = Number(document.getElementById('new-student-semester').value);
+      const section = document.getElementById('new-student-section').value;
+
+      try {
+        await fetch('/api/students', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, department, semester, section })
+        });
+        closeModal('modal-add-student');
+        document.getElementById('form-add-student').reset();
+        showToast(`Enrolled ${name} successfully into ${department}`);
+        loadStudentsDirectory();
+        loadDashboardData();
+      } catch (err) {
+        showToast('Error enrolling student');
+      }
+    }
+
+    async function deleteStudent(id) {
+      if (!confirm('Are you sure you want to remove this student record from the ledger?')) return;
+      try {
+        await fetch(`/api/students/${id}`, { method: 'DELETE' });
+        showToast('Student record removed');
+        loadStudentsDirectory();
+        loadDashboardData();
+      } catch (err) {
+        showToast('Error deleting student');
+      }
+    }
+
+    // 5. Teachers Directory API Loader
+    async function loadTeachersDirectory() {
+      const search = document.getElementById('teacher-search-input').value;
+      let url = '/api/teachers?';
+      if (search) url += `search=${encodeURIComponent(search)}&`;
+
+      try {
+        const res = await fetch(url);
+        const teachers = await res.json();
+        const tbody = document.getElementById('teachers-tbody');
+        tbody.innerHTML = '';
+        document.getElementById('teachers-count-badge').innerText = `${teachers.length} faculty registered`;
+
+        teachers.forEach(tc => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>
+              <div style="font-weight:700;">${tc.name}</div>
+              <div style="font-size:10px; color:var(--text-faint);">${tc.email}</div>
+            </td>
+            <td>${tc.title}</td>
+            <td>${tc.department}</td>
+            <td class="font-mono">${tc.totalLecturesLogged}</td>
+            <td class="font-mono">${tc.averageAttendance}%</td>
+            <td style="text-align:right;">
+              <button class="btn-action secondary" style="padding:2px 6px; font-size:10px; margin-right:4px;" onclick="viewTeacherDetails('${tc.id}')">View Dossier</button>
+              <button class="btn-action secondary" style="padding:2px 6px; font-size:10px;" onclick="deleteTeacher('${tc.id}')">Remove</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Error loading teachers:', err);
+      }
+    }
+
+    async function viewTeacherDetails(id) {
+      try {
+        const res = await fetch(`/api/teachers`);
+        const list = await res.json();
+        const tc = list.find(t => t.id === id);
+        if (!tc) return;
+
+        const container = document.getElementById('teacher-detail-content');
+        container.innerHTML = `
+          <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem; padding:0.75rem; background:#f4f6f0; border-radius:4px;">
+            <div style="width:48px; height:48px; border-radius:50%; background:var(--accent-navy); color:#ffffff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px;">
+              ${tc.name.split(' ').map(n=>n[0]).join('').slice(0,2)}
+            </div>
+            <div>
+              <h4 style="margin:0; font-size:14px; font-weight:700;">${tc.name}</h4>
+              <p style="margin:2px 0 0; font-size:11px; color:var(--text-faint);">${tc.title} · ${tc.department}</p>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; font-size:11px; margin-bottom:1rem;">
+            <div><strong>Email:</strong> ${tc.email}</div>
+            <div><strong>Department:</strong> ${tc.department}</div>
+            <div><strong>Lectures Logged:</strong> ${tc.totalLecturesLogged} sessions</div>
+            <div><strong>Avg Class Attendance:</strong> <span style="color:var(--accent-green); font-weight:700;">${tc.averageAttendance}%</span></div>
+            <div><strong>Office Hours:</strong> Mon-Thu 14:00–16:00</div>
+            <div><strong>Research Group:</strong> Distributed AI & Systems</div>
+          </div>
+          <div style="font-size:11px; border-top:1px solid var(--border-light); padding-top:0.75rem;">
+            <strong>Assigned Courses:</strong>
+            <p style="color:var(--text-faint); margin-top:0.25rem;">CS-301 Object-Oriented Programming · CS-205 Database Management Systems</p>
+          </div>
+        `;
+        openModal('modal-teacher-detail');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function handleCreateTeacher(e) {
+      e.preventDefault();
+      const name = document.getElementById('new-teacher-name').value;
+      const title = document.getElementById('new-teacher-title').value;
+      const email = document.getElementById('new-teacher-email').value;
+      const department = document.getElementById('new-teacher-dept').value;
+
+      try {
+        await fetch('/api/teachers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, title, email, department })
+        });
+        closeModal('modal-add-teacher');
+        document.getElementById('form-add-teacher').reset();
+        showToast(`Registered faculty member ${name}`);
+        loadTeachersDirectory();
+        loadDashboardData();
+      } catch (err) {
+        showToast('Error registering faculty member');
+      }
+    }
+
+    async function deleteTeacher(id) {
+      if (!confirm('Are you sure you want to remove this faculty member from the directory?')) return;
+      try {
+        await fetch(`/api/teachers/${id}`, { method: 'DELETE' });
+        showToast('Faculty member record removed');
+        loadTeachersDirectory();
+        loadDashboardData();
+      } catch (err) {
+        showToast('Error deleting teacher');
+      }
+    }
+
+    async function handleCreateTopic(e) {
+      e.preventDefault();
+      const courseId = document.getElementById('new-topic-course').value;
+      const title = document.getElementById('new-topic-title').value;
+      const estimatedHours = Number(document.getElementById('new-topic-hours').value);
+      const description = document.getElementById('new-topic-desc').value;
+
+      try {
+        await fetch('/api/syllabus', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ courseId, title, estimatedHours, description, status: 'Pending' })
+        });
+        closeModal('modal-add-topic');
+        document.getElementById('form-add-topic').reset();
+        showToast(`Added topic "${title}" to course ${courseId}`);
+        loadSyllabusTopics();
+      } catch (err) {
+        showToast('Error adding syllabus topic');
+      }
+    }
+
+    // 6. Courses Directory API Loader
+    async function loadCoursesDirectory() {
+      const search = document.getElementById('course-search-input').value;
+      let url = '/api/courses?';
+      if (search) url += `search=${encodeURIComponent(search)}&`;
+
+      try {
+        const res = await fetch(url);
+        const courses = await res.json();
+        const tbody = document.getElementById('courses-tbody');
+        tbody.innerHTML = '';
+        document.getElementById('courses-count-badge').innerText = `${courses.length} courses cataloged`;
+
+        courses.forEach(c => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="font-mono font-bold">${c.code}</td>
+            <td>${c.name}</td>
+            <td>${c.teacherName}</td>
+            <td class="font-mono">${c.creditHours} CR</td>
+            <td class="font-mono">${c.studentsEnrolled}</td>
+            <td class="font-mono">${c.syllabusCoverage}%</td>
+            <td style="text-align:right;">
+              <button class="btn-action secondary" style="padding:2px 6px; font-size:10px; margin-right:4px;" onclick="viewCourseDetails('${c.code}', '${c.name}')">View Syllabus</button>
+              <button class="btn-action secondary" style="padding:2px 6px; font-size:10px;" onclick="deleteCourse('${c.id}')">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Error loading courses:', err);
+      }
+    }
+
+    async function handleCreateCourse(e) {
+      e.preventDefault();
+      const code = document.getElementById('new-course-code').value;
+      const name = document.getElementById('new-course-title').value;
+      const teacherName = document.getElementById('new-course-teacher').value;
+      const department = document.getElementById('new-course-dept').value;
+      const creditHours = Number(document.getElementById('new-course-credits').value);
+
+      try {
+        await fetch('/api/courses', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, name, teacherName, department, creditHours })
+        });
+        closeModal('modal-add-course');
+        document.getElementById('form-add-course').reset();
+        showToast(`Created course ${code}: ${name}`);
+        loadCoursesDirectory();
+      } catch (err) {
+        showToast('Error creating course');
+      }
+    }
+
+    async function deleteCourse(id) {
+      if (!confirm('Are you sure you want to delete this course from the catalog?')) return;
+      try {
+        await fetch(`/api/courses/${id}`, { method: 'DELETE' });
+        showToast('Course deleted');
+        loadCoursesDirectory();
+        loadDashboardData();
+      } catch (err) {
+        showToast('Error deleting course');
+      }
+    }
+
+    function viewCourseDetails(code, name) {
+      navigate('syllabus');
+      const select = document.getElementById('syllabus-filter-course');
+      if (select) {
+        let exists = false;
+        for (let opt of select.options) {
+          if (opt.value === code) exists = true;
+        }
+        if (!exists) {
+          const opt = document.createElement('option');
+          opt.value = code;
+          opt.innerText = `${code} ${name}`;
+          select.appendChild(opt);
+        }
+        select.value = code;
+        loadSyllabusTopics();
+      }
+    }
+
+    // 7. Lectures Logs API Loader
+    async function loadLecturesDirectory() {
+      const status = document.getElementById('lectures-filter-status').value;
+      let url = '/api/lectures?';
+      if (status && status !== 'All') url += `status=${encodeURIComponent(status)}&`;
+
+      try {
+        const res = await fetch(url);
+        const lectures = await res.json();
+        const tbody = document.getElementById('lectures-tbody');
+        tbody.innerHTML = '';
+
+        lectures.forEach(lec => {
+          const tr = document.createElement('tr');
+          const isLive = lec.status === 'Live';
+          tr.innerHTML = `
+            <td class="font-mono">${lec.id}</td>
+            <td><strong>${lec.courseCode}</strong> - ${lec.courseName}</td>
+            <td>${lec.teacherName}</td>
+            <td class="font-mono">${lec.date} (${lec.startTime}–${lec.endTime})</td>
+            <td class="font-mono">${lec.attendanceRate}%</td>
+            <td><span class="status-badge ${isLive ? 'live' : ''}">${lec.status}</span></td>
+            <td style="text-align:right;">
+              <button class="btn-action secondary" style="padding:2px 6px; font-size:10px; margin-right:4px;" onclick="toggleLectureStatus('${lec.id}', '${lec.status}')">${isLive ? 'End Session' : 'Go Live'}</button>
+              <button class="btn-action secondary" style="padding:2px 6px; font-size:10px;" onclick="deleteLecture('${lec.id}')">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Error loading lectures:', err);
+      }
+    }
+
+    async function handleCreateLecture(e) {
+      e.preventDefault();
+      const courseCode = document.getElementById('new-lecture-course').value;
+      const teacherName = document.getElementById('new-lecture-teacher').value;
+      const room = document.getElementById('new-lecture-room').value;
+      const startTime = document.getElementById('new-lecture-start').value;
+      const endTime = document.getElementById('new-lecture-end').value;
+
+      try {
+        await fetch('/api/lectures', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            courseCode,
+            courseName: courseCode === 'CS-301' ? 'Object-Oriented Programming' : courseCode === 'SE-214' ? 'Web Engineering' : 'Database Systems',
+            teacherName,
+            room,
+            startTime,
+            endTime,
+            date: 'Today',
+            status: 'Live',
+            attendanceRate: 85
+          })
+        });
+        closeModal('modal-add-lecture');
+        document.getElementById('form-add-lecture').reset();
+        showToast(`Lecture scheduled for ${courseCode} in ${room}`);
+        loadLecturesDirectory();
+        loadDashboardData();
+      } catch (err) {
+        showToast('Error scheduling lecture');
+      }
+    }
+
+    async function toggleLectureStatus(id, currentStatus) {
+      const nextStatus = currentStatus === 'Live' ? 'Completed' : 'Live';
+      try {
+        await fetch(`/api/lectures/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: nextStatus })
+        });
+        showToast(`Lecture marked as ${nextStatus}`);
+        loadLecturesDirectory();
+        loadDashboardData();
+      } catch (err) {
+        showToast('Error updating lecture');
+      }
+    }
+
+    async function deleteLecture(id) {
+      if (!confirm('Are you sure you want to delete this lecture record?')) return;
+      try {
+        await fetch(`/api/lectures/${id}`, { method: 'DELETE' });
+        showToast('Lecture record removed');
+        loadLecturesDirectory();
+        loadDashboardData();
+      } catch (err) {
+        showToast('Error deleting lecture');
+      }
+    }
+
+    // 8. Reports API Loader
+    async function loadReportsDirectory() {
+      try {
+        const res = await fetch('/api/reports');
+        const reports = await res.json();
+        const tbody = document.getElementById('reports-tbody');
+        tbody.innerHTML = '';
+
+        reports.forEach(rpt => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="font-mono font-bold">${rpt.id}</td>
+            <td>${rpt.courseCode} · ${rpt.courseName}</td>
+            <td class="font-mono">${rpt.generatedAt}</td>
+            <td class="font-mono">${rpt.attendanceRate}%</td>
+            <td class="font-mono">${rpt.syllabusCoverage}%</td>
+            <td style="text-align:right;">
+              <button class="btn-action secondary" style="padding:2px 6px; font-size:10px; margin-right:4px;" onclick="viewReportDetails('${rpt.id}')">View Summary</button>
+              <button class="btn-action secondary" style="padding:2px 6px; font-size:10px;" onclick="deleteReport('${rpt.id}')">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Error loading reports:', err);
+      }
+    }
+
+    async function viewReportDetails(id) {
+      try {
+        const res = await fetch(`/api/reports`);
+        const list = await res.json();
+        const rpt = list.find(r => r.id === id);
+        if (!rpt) return;
+
+        const container = document.getElementById('report-detail-content');
+        container.innerHTML = `
+          <div style="border-bottom:1px solid var(--border-light); padding-bottom:0.75rem; margin-bottom:0.75rem;">
+            <div style="font-size:10px; color:var(--text-faint); font-family:var(--font-mono);">AUDIT REPORT ID: ${rpt.id}</div>
+            <h4 style="margin:4px 0 0; font-size:14px; font-weight:700;">${rpt.courseCode} — ${rpt.courseName}</h4>
+            <p style="margin:2px 0 0; font-size:11px; color:var(--text-faint);">Generated on ${rpt.generatedAt} by Registrar Automated Telemetry</p>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; font-size:11px; margin-bottom:1rem;">
+            <div><strong>Overall Attendance Rate:</strong> <span style="color:var(--accent-green); font-weight:700;">${rpt.attendanceRate}%</span></div>
+            <div><strong>Curriculum Syllabus Coverage:</strong> <span style="color:var(--accent-navy); font-weight:700;">${rpt.syllabusCoverage}%</span></div>
+            <div><strong>Total Lectures Delivered:</strong> ${rpt.totalLecturesDelivered || 24}</div>
+            <div><strong>Total Students Enrolled:</strong> ${rpt.studentsEnrolled || 29}</div>
+          </div>
+          <div style="background:#f4f6f0; padding:0.75rem; border-radius:4px; font-size:11px; margin-bottom:1rem;">
+            <strong>Executive Registrar Assessment:</strong>
+            <p style="margin:0.25rem 0 0; color:var(--text-main);">${rpt.summary || 'Course compliance satisfies BBSUL accreditation standards. AI facial telemetry confirms standard seat occupancy above 80% with minimal unexcused absences.'}</p>
+          </div>
+        `;
+        openModal('modal-report-detail');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function deleteReport(id) {
+      if (!confirm('Are you sure you want to delete this compliance report?')) return;
+      try {
+        await fetch(`/api/reports/${id}`, { method: 'DELETE' });
+        showToast('Report deleted');
+        loadReportsDirectory();
+      } catch (err) {
+        showToast('Error deleting report');
+      }
+    }
+
+    // Real Camera / Webcam Feed Toggle & AI Simulator
+    document.getElementById('btn-camera-toggle').addEventListener('click', async () => {
+      const video = document.getElementById('webcam-element');
+      const placeholder = document.getElementById('camera-placeholder');
+      
+      if (!webCamActive) {
+        try {
+          if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            video.style.display = 'block';
+            placeholder.style.display = 'none';
+            webCamActive = true;
+            showToast('Live Camera Feed initialized with Real-Time AI Detection Overlay');
+          } else {
+            showToast('Webcam API not available in iframe mode; simulator active');
+          }
+        } catch (e) {
+          showToast('Simulator mode active (Camera permission bypassed)');
+        }
+      } else {
+        if (video.srcObject) {
+          video.srcObject.getTracks().forEach(track => track.stop());
+        }
+        video.style.display = 'none';
+        placeholder.style.display = 'block';
+        webCamActive = false;
+        showToast('Webcam turned off');
+      }
+    });
+
+    function simulateFaceScanDetection() {
+      const stream = document.getElementById('live-events-stream');
+      const timeStr = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const randomNames = ['Zainab Bibi', 'Farhan Akhtar', 'Hamza Tariq', 'Danish Ali', 'Fatima Zahra'];
+      const pick = randomNames[Math.floor(Math.random() * randomNames.length)];
+      const roll = 'CS-24-0' + Math.floor(10 + Math.random() * 80);
+
+      const div = document.createElement('div');
+      div.style.padding = '0.45rem 0.6rem';
+      div.style.borderLeft = '3px solid var(--accent-green)';
+      div.style.background = '#fbfcf9';
+      div.style.fontSize = '11px';
+      div.innerHTML = `<strong>${timeStr}</strong> — ${pick} (${roll}) auto-verified via Face ID (Confidence 99%)`;
+      if (stream) stream.prepend(div);
+      showToast(`AI Face Scanner matched: ${pick} (${roll})`);
+    }
+
+    // Keyboard Shortcuts (⌘K for Search)
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        navigate('students');
+        document.getElementById('student-search-input')?.focus();
+      }
+    });
+
+    document.getElementById('global-search-btn').addEventListener('click', () => {
+      navigate('students');
+      document.getElementById('student-search-input')?.focus();
+    });
+
+    // Initialize application on load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadDashboardData();
+    });
+  </script>
+</body>
+</html>
